@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Location Details</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="result.css"> <!-- Link to your CSS file -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script> <!-- For API calls -->
+
+</head>
+<body>
+    <div class="top-bar">
+        <h1>Track Air Quality</h1>
+        <a href="index.html">Back to Search</a>
+    </div>
+
+    <div id="container">
+        <div id="map"></div>
+        <div id="details">
+            <h2>AQI VALUE</h2>
+            <table id="table">
+                <tr id="head">
+                    <th>Qualitative name</th>
+                    <th>Index</th>
+                </tr>
+                <tr id="data">
+                    <td>Good</td>
+                    <td>1</td>
+                </tr>
+                <tr id="data">
+                    <td>Fair</td>
+                    <td>2</td>
+                </tr>
+                <tr id="data">
+                    <td>Moderate</td>
+                    <td>3</td>
+                </tr>
+                <tr id="data">
+                    <td>Poor</td>
+                    <td>4</td>
+                </tr>
+                <tr id="data">
+                    <td>Very Poor</td>
+                    <td>5</td>
+                </tr>
+            </table>
+            <p id="aqi-value">Loading...</p>
+            <h3>Components:</h3>
+            <p id="co">CO: Loading...</p>
+            <p id="no">NO: Loading...</p>
+            <p id="no2">NO2: Loading...</p>
+            <p id="o3">O3: Loading...</p>
+            <p id="so2">SO2: Loading...</p>
+            <p id="pm2_5">PM2.5: Loading...</p>
+            <p id="pm10">PM10: Loading...</p>
+            <p id="nh3">NH3: Loading...</p>
+        </div>
+    </div>
+    <div id="footer">
+        © 2024. All Rights Reserved.
+    </div>
+
+    <script>
+        // Function to get query parameters
+        function getQueryParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // Function to geocode the location
+        async function geocodeLocation(location) {
+            const response = await axios.get('https://nominatim.openstreetmap.org/search', {
+                params: {
+                    q: location,
+                    format: 'json',
+                    limit: 1
+                }
+            });
+            return response.data[0];
+        }
+
+        // Function to fetch AQI data
+        async function fetchAQI(lat, lon) {
+            const apiKey = 'd1becd2fadd3adf79a95243893238ac7'; // Replace with your actual API key
+            const response = await axios.get('https://api.openweathermap.org/data/2.5/air_pollution', {
+                params: {
+                    lat: lat,
+                    lon: lon,
+                    appid: apiKey
+                }
+            });
+            return response.data;
+        }
+
+        // Function to initialize the map
+        async function initializeMap() {
+            const location = getQueryParameter('location');
+            if (!location) {
+                alert('No location specified!');
+                return;
+            }
+
+            const geocodeData = await geocodeLocation(location);
+            if (!geocodeData) {
+                alert('Location not found!');
+                return;
+            }
+
+            const lat = geocodeData.lat;
+            const lon = geocodeData.lon;
+
+            // Initialize Leaflet map
+            var map = L.map('map').setView([lat, lon], 13);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            L.tileLayer('https://tiles.waqi.info/tiles/usepa-aqi/{z}/{x}/{y}.png?token=2047ab9342cee1171f728ab82995b81cac81a0bd', {
+                attribution: 'Air Quality Tiles &copy; <a href="http://waqi.info">waqi.info</a>'
+            }).addTo(map);
+
+            const aqi = await fetchAQI(lat, lon);
+            updateDetails(aqi);
+
+            // document.getElementById('aqi-value').innerText = `AQI: ${aqi}`;
+            L.marker([lat, lon]).addTo(map)
+                .bindPopup(`<b>${location}</b><br>Lat: ${lat}<br>Lon: ${lon}`)
+                .openPopup();
+        }
+
+        function updateDetails(data) {
+            const aqi = data.list[0].main.aqi;
+            const components = data.list[0].components;
+
+  
+            document.getElementById('aqi-value').innerText = `AQI: ${aqi}`;
+    document.getElementById('co').innerHTML = `<b>CO:</b> ${components.co} µg/m³`;
+    document.getElementById('no').innerHTML = `<b>NO:</b> ${components.no} µg/m³`;
+    document.getElementById('no2').innerHTML = `<b>NO2:</b> ${components.no2} µg/m³`;
+    document.getElementById('o3').innerHTML = `<b>O3:</b> ${components.o3} µg/m³`;
+    document.getElementById('so2').innerHTML = `<b>SO2:</b> ${components.so2} µg/m³`;
+    document.getElementById('pm2_5').innerHTML = `<b>PM2.5:</b> ${components.pm2_5} µg/m³`;
+    document.getElementById('pm10').innerHTML = `<b>PM10:</b> ${components.pm10} µg/m³`;
+    document.getElementById('nh3').innerHTML = `<b>NH3:</b> ${components.nh3} µg/m³`;
+
+        }
+        // Initialize map on page load
+        initializeMap();
+    </script>
+</body>
+</html>

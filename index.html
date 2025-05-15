@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+       <meta charset="UTF-8">
+       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                  <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+       <title>Moniter AQI Around You</title>
+       <link rel="icon" href="world.jpg" type="image/x-icon">
+
+       <link
+       href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css"
+       rel="stylesheet"/>
+       <link rel="stylesheet" href="styles.css">
+       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+       <link rel="preconnect" href="https://fonts.googleapis.com">
+       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+       <link
+           href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Gupter:wght@400;500;700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=League+Spartan:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+           rel="stylesheet">
+ 
+</head>
+<body>
+       <div class="top-bar">
+              <h1>Track Air Quality</h1>
+              <form id="search-form" action="results.html" method="GET">
+                <div class="search">
+                    <span class="material-symbols-outlined search-icon">search</span>
+                    <input id="search-input" class="search-input" type="search" name="location" placeholder="Search" required>
+                </div>
+            </form>
+            
+                
+              </div>
+       </form>      
+       </div>
+
+        <!-- Leaflet JavaScript -->
+        <div id="map">
+            
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+        <script>
+            // Tile Layer URLs
+            var OSM_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+            var OSM_ATTRIB = '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+            var osmLayer = L.tileLayer(OSM_URL, { attribution: OSM_ATTRIB });
+    
+            var WAQI_URL = 'https://tiles.waqi.info/tiles/usepa-aqi/{z}/{x}/{y}.png?token=2047ab9342cee1171f728ab82995b81cac81a0bd';
+            var WAQI_ATTR = 'Air Quality Tiles &copy; <a href="http://waqi.info">waqi.info</a>';
+            var waqiLayer = L.tileLayer(WAQI_URL, { attribution: WAQI_ATTR });
+    
+            var map = L.map('map', {
+                center: [20.5937, 78.9629],
+                zoom: 5,
+                maxZoom: 18,
+                minZoom: 3
+            });
+    
+            osmLayer.addTo(map);
+            waqiLayer.addTo(map);
+    
+            var bounds = L.latLngBounds(
+                L.latLng(-90, -180),
+                L.latLng(90, 180)
+            );
+            map.setMaxBounds(bounds);
+    
+            map.on('drag', function() {
+                map.setView(map.getCenter(), map.getZoom(), { animate: false });
+            });
+        </script>
+    </div>
+
+       <div id="footer">
+               © 2024. All Rights Reserved.
+       </div>
+
+       
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AQI Dashboard</title>
+    <style>
+        .aqi-component {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .aqi-component b {
+            width: 50px;  /* Adjust width according to your needs */
+        }
+
+        .aqi-component span {
+            flex-grow: 1;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+</head>
+<body>
+
+    <!-- Input for City Search -->
+    <input type="text" id="city-input" placeholder="Enter city name" />
+    <button id="search-button">Search</button>
+
+    <!-- Placeholder for the map -->
+    <div id="map" style="height: 400px;"></div>
+
+    <!-- AQI Data Display -->
+    <div id="details">
+        <div class="aqi-component"><b>AQI:</b> <span id="aqi-value"></span></div>
+        <div class="aqi-component"><b>CO:</b> <span id="co"></span></div>
+        <div class="aqi-component"><b>NO:</b> <span id="no"></span></div>
+        <div class="aqi-component"><b>NO2:</b> <span id="no2"></span></div>
+        <div class="aqi-component"><b>O3:</b> <span id="o3"></span></div>
+        <div class="aqi-component"><b>SO2:</b> <span id="so2"></span></div>
+        <div class="aqi-component"><b>PM2.5:</b> <span id="pm2_5"></span></div>
+        <div class="aqi-component"><b>PM10:</b> <span id="pm10"></span></div>
+        <div class="aqi-component"><b>NH3:</b> <span id="nh3"></span></div>
+    </div>
+
+    <!-- Placeholder for the AQICN Widget -->
+    <span id="city-aqi-container"></span>
+
+    <script>
+        // Function to geocode the location
+        async function geocodeLocation(location) {
+            const response = await axios.get('https://nominatim.openstreetmap.org/search', {
+                params: {
+                    q: location,
+                    format: 'json',
+                    limit: 1
+                }
+            });
+            return response.data[0];
+        }
+
+        // Function to fetch AQI data from OpenWeatherMap API
+        async function fetchAQI(lat, lon) {
+            const apiKey = 'd1becd2fadd3adf79a95243893238ac7'; // Replace with your actual API key
+            const response = await axios.get('https://api.openweathermap.org/data/2.5/air_pollution', {
+                params: {
+                    lat: lat,
+                    lon: lon,
+                    appid: apiKey
+                }
+            });
+            return response.data;
+        }
+
+        // Function to update AQI details from OpenWeatherMap API
+        function updateDetails(data) {
+            const aqi = data.list[0].main.aqi;
+            const components = data.list[0].components;
+
+            document.getElementById('aqi-value').innerText = `AQI: ${aqi}`;
+            document.getElementById('co').innerHTML = `<b>CO:</b> ${components.co} µg/m³`;
+            document.getElementById('no').innerHTML = `<b>NO:</b> ${components.no} µg/m³`;
+            document.getElementById('no2').innerHTML = `<b>NO2:</b> ${components.no2} µg/m³`;
+            document.getElementById('o3').innerHTML = `<b>O3:</b> ${components.o3} µg/m³`;
+            document.getElementById('so2').innerHTML = `<b>SO2:</b> ${components.so2} µg/m³`;
+            document.getElementById('pm2_5').innerHTML = `<b>PM2.5:</b> ${components.pm2_5} µg/m³`;
+            document.getElementById('pm10').innerHTML = `<b>PM10:</b> ${components.pm10} µg/m³`;
+            document.getElementById('nh3').innerHTML = `<b>NH3:</b> ${components.nh3} µg/m³`;
+        }
+
+        // Initialize the map with Leaflet and display marker
+        async function initializeMap(lat, lon, location) {
+            var map = L.map('map').setView([lat, lon], 13);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            L.marker([lat, lon]).addTo(map)
+                .bindPopup(`<b>${location}</b><br>Lat: ${lat}<br>Lon: ${lon}`)
+                .openPopup();
+        }
+
+        // Function to trigger both OpenWeatherMap AQI fetch and AQICN widget
+        async function updateBothSources(city) {
+            // Fetch Geolocation
+            const geocodeData = await geocodeLocation(city);
+            if (!geocodeData) {
+                alert('Location not found!');
+                return;
+            }
+
+            const lat = geocodeData.lat;
+            const lon = geocodeData.lon;
+
+            // Update the map
+            initializeMap(lat, lon, city);
+
+            // Fetch AQI Data from OpenWeatherMap
+            const aqiData = await fetchAQI(lat, lon);
+            updateDetails(aqiData);
+
+            // Fetch AQI Widget from AQICN
+            updateAQICNWidget(city);
+        }
+
+        // Function to trigger the AQICN widget
+        function updateAQICNWidget(city) {
+            _aqiFeed({
+                display:"<div style='%style;max-width:180px;text-align:center;'><small>%cityname AQI:</small> <div style='font-size:88px;padding:0.5rem;'>%aqiv</div> %impact</div>",
+                container:  "city-aqi-container",  
+                city: city  
+            });
+        }
+
+        // Event listener for search button
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("search-button").addEventListener("click", function () {
+                var city = document.getElementById("city-input").value.trim();
+                if (city) {
+                    updateBothSources(city);  // Trigger both APIs
+                }
+            });
+        });
+    </script>
+
+    <!-- AQICN Widget script -->
+    <script type="text/javascript" charset="utf-8">
+        (function(w, d, t, f) {
+            w[f] = w[f] || function(c, k, n) {
+                s = w[f], k = s['k'] = (s['k'] || (k ? ('&k=' + k) : '')); s['c'] =
+                    c = (c instanceof Array) ? c : [c]; s['n'] = n = n || 0; L = d.createElement(t), e = d.getElementsByTagName(t)[0];
+                L.async = 1; L.src = '//feed.aqicn.org/feed/' + (c[n].city) + '/' + (c[n].lang || '') + '/feed.v1.js?n=' + n + k;
+                e.parentNode.insertBefore(L, e);
+            };
+        })(window, document, 'script', '_aqiFeed');
+    </script>
+     <span  id="city-aqi-container"></span>
+</body>
+</html>

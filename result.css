@@ -1,0 +1,120 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+}
+
+body {
+    box-sizing: border-box;
+}
+
+/* Top bar with no impact on the map height */
+.top-bar {
+    background-color: #ffffff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    font-size: 1.8rem;
+    margin: 0;
+    color: #333;
+}
+
+a {
+    text-decoration: none;
+    color: #007bff;
+    font-size: 1rem;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Main container adjusts to fill the space between top-bar and footer */
+#container {
+    display: flex;
+    justify-content: space-between;
+    padding: 1%;
+    flex-grow: 1;
+    gap: 1%;
+    box-sizing: border-box;
+    height: calc(100% - 80px); /* Adjust for top-bar and footer height */
+}
+
+/* Map and Details sections have equal height */
+#map, #details {
+    flex: 1;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    box-sizing: border-box;
+    height: 100%; /* Full height of container */
+}
+
+/* Map specific styling */
+#map {
+    height: calc(100% - 35px);
+    margin-bottom: 0;
+}
+
+/* Details specific styling */
+#details {
+    padding: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    margin-bottom: 0;
+}
+
+/* Footer stays at the bottom of the screen */
+#footer {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 0.9rem;
+    color: #333;
+    width: 100%;
+    box-sizing: border-box;
+    flex-shrink: 0; /* Ensure the footer does not overlap content */
+}
+
+/* Styling for the AQI table */
+#table {
+    width: 100%;
+    border: 1px solid #000;
+    border-collapse: collapse;
+}
+
+#head {
+    background-color: #7bc7e8;
+    padding: 8px;
+    text-align: center;
+    color: #222;
+    border: 1px solid #000;
+}
+
+#data {
+    border: 1px solid #000;
+    padding: 8px;
+    text-align: center;
+}
+
+/* Media queries for responsiveness */
+@media screen and (max-width: 600px) {
+    #container {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    #map, #details {
+        width: 100%;
+        height: auto;
+        margin: 0;
+    }
+}

@@ -1,0 +1,123 @@
+html {
+    font-size: 1rem;
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    background-color: #e9eff1;
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Top Bar Styling */
+.top-bar {
+    background-color: #ffffff;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    padding: 0.8rem 1.5rem;
+    position: relative;
+    z-index: 10;
+}
+
+/* Heading Styling */
+h1 {
+    font-family: 'Roboto', sans-serif;
+    font-size: 2.2rem;
+    color: #2c3e50;
+    margin-left: 1rem;
+    padding: 0;
+    font-weight: 500;
+}
+
+/* Search Box Styling */
+.search {
+    width: 95%;
+    display: flex;
+    padding: 0.8rem;
+    border-radius: 1.5rem;
+    background-color: #a7aaaa;
+    transition: box-shadow 0.3s ease-in-out;
+    margin-right: 4%;
+    margin-left: 0%;
+}
+
+.search:focus-within {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.search-input {
+    font-size: 1rem;
+    font-family: 'Roboto', sans-serif;
+    color: #f6f7f8;
+    margin-left: 0.5rem;
+    outline: none;
+    border: none;
+    background: transparent;
+    flex: 1;
+}
+
+.search-input::placeholder {
+    color: rgba(0, 0, 0, 0.5);
+}
+
+.search-icon {
+    color: #7f8c8d;
+    margin-right: 0.5rem;
+}
+
+/* Map Container */
+#map {
+    height: 70vh;
+    width: 90%;
+    margin: 2% auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+}
+
+/* Footer Styling */
+#footer {
+    margin-top: 20px;
+    padding: 15px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.9rem;
+    text-align: center;
+    width: 100%;
+    background-color: #f2f8fc;
+    color: #2c3e50;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive Adjustments */
+@media screen and (max-width: 600px) {
+    h1 {
+        font-size: 1.4rem;
+        margin-top: 5%;
+    }
+
+    .search {
+        width: 80%;
+        padding: 0.75rem;
+        border-radius: 2rem;
+        margin-left: 10%;
+    }
+
+    .search-input {
+        font-size: 0.9rem;
+    }
+
+    #map {
+        width: 96%;
+        margin-top: 5%;
+    }
+
+    #footer {
+        font-size: 0.8rem;
+    }
+}
